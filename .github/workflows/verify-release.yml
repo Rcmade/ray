@@ -48,3 +48,4 @@ jobs:
         run: |
           & "$env:USERPROFILE\.ray\bin\ray.exe" --version
           & "$env:USERPROFILE\.ray\bin\ray.exe" --help
+
