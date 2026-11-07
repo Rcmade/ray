@@ -46,7 +46,7 @@ case "$OS" in
   *)
     echo "${RED}Error: Unsupported operating system: ${OS}${RESET}" >&2
     echo "For Windows, run the PowerShell installer:"
-    echo "  ${CYAN}iwr https://ray.rcmade.com/install.ps1 -useb | iex${RESET}"
+    echo "  ${CYAN}iwr https://secrets.bitovian.com/install.ps1 -useb | iex${RESET}"
     echo "Or install via NPM:"
     echo "  ${CYAN}npm install -g @rcmade/ray${RESET}"
     exit 1
