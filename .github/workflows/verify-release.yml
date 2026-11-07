@@ -1,0 +1,50 @@
+name: Multi-OS Release Verification Matrix
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-unix:
+    name: Verify on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: 🛎️ Checkout Installer Script
+        uses: actions/checkout@v4
+
+      - name: 📥 Run Universal Installer (install.sh)
+        run: |
+          chmod +x ./install.sh
+          ./install.sh
+
+      - name: 🧪 Smoke Test Native Binary Execution
+        run: |
+          ~/.ray/bin/ray --version
+          ~/.ray/bin/ray --help
+
+  verify-windows:
+    name: Verify on windows-latest
+    runs-on: windows-latest
+
+    steps:
+      - name: 🛎️ Checkout Installer Script
+        uses: actions/checkout@v4
+
+      - name: 📥 Run Universal Windows Installer (install.ps1)
+        shell: pwsh
+        run: |
+          .\install.ps1
+
+      - name: 🧪 Smoke Test Windows PE Binary Execution
+        shell: pwsh
+        run: |
+          & "$env:USERPROFILE\.ray\bin\ray.exe" --version
+          & "$env:USERPROFILE\.ray\bin\ray.exe" --help

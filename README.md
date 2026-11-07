@@ -1,114 +1,137 @@
-# @rcmade/ray
+<div align="center">
 
-## Purpose
-
-`@rcmade/ray` is designed to empower developers with a secure and convenient way to manage their credentials directly from the terminal. It addresses key challenges:
-
-- **Security**: Safely encrypts and stores various credentials, such as API keys and GitHub snippets, ensuring they are protected yet easily retrievable.
-- **Accessibility**: Provides instant access to stored credentials from any terminal, enhancing workflow efficiency without compromising on security.
-- **Convenience**: Eliminates the hassle of managing multiple credentials by centralizing them in a single, easy-to-use terminal application.
-
-## Why Use @rcmade/ray?
-
-- **Secure Storage**: Encrypt and save your crucial development credentials with confidence.
-- **Global Access**: Fetch your credentials securely from anywhere, anytime, directly through your terminal.
-- **Streamlined Workflow**: Improve your productivity by having all your necessary credentials at your fingertips, ready to be used when you need them the most.
-
-## Installation
-
-To install `@rcmade/ray` globally on your system, allowing you to use it from any terminal, execute the following command:
-
-```sh
-npm install -g @rcmade/ray
+```
+    ██████╗  █████╗ ██╗   ██╗
+    ██╔══██╗██╔══██╗╚██╗ ██╔╝
+    ██████╔╝███████║ ╚████╔╝ 
+    ██╔══██╗██╔══██║  ╚██╔╝  
+    ██║  ██║██║  ██║   ██║   
+    ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
 ```
 
-## Troubleshooting Autocompletion
+# Ray Secrets CLI
 
-If you find that autocompletion is not working immediately after the setup, try the following steps:
+**The Enterprise-Grade Secrets Manager for Modern Development Teams**
 
-1. **Restart your terminal**: Close and reopen your terminal window to refresh the session and apply the changes.
+[![GitHub Release](https://img.shields.io/github/v/release/Rcmade/ray?style=flat-square&color=00c7b7)](https://github.com/Rcmade/ray/releases)
+[![NPM Version](https://img.shields.io/npm/v/@rcmade/ray?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@rcmade/ray)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Platforms](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blueviolet?style=flat-square)](#platform-support)
 
-2. **Restart your computer**: If restarting the terminal does not resolve the issue, a full restart of your computer can help ensure that all paths and configurations are correctly reloaded.
+Securely synchronize, manage, audit, and inject environment secrets across local workspaces, staging clusters, and production environments—**without writing plaintext secrets to disk or leaking credentials into shell history**.
 
-These steps typically resolve any issues with command autocompletion not functioning after installation.
+[Web Console](https://secrets.bitovian.com) • [Quickstart](#quickstart) • [Installation](#installation) • [Commands](#command-reference) • [Security Architecture](#security-model)
 
-## Further Troubleshooting Autocompletion
+</div>
 
-In some cases, autocompletion might not activate even after restarting your terminal or computer. If you encounter this issue, follow these steps:
+---
 
-1. **Manually run the setup command**: Execute the `ray setup` command in your terminal. This command manually runs the setup file to configure autocompletion.
+## 🚀 Installation
 
-    ```sh
-    ray setup
-    ```
+Ray CLI is distributed as a **zero-dependency, single native executable** (Linux, macOS, Windows) and as an **NPM package** for Node.js developers.
 
-2. **Restart your terminal**: Close and reopen your terminal window to ensure that the new autocompletion settings are applied.
+### macOS & Linux (Universal Installer)
+```bash
+curl -fsSL https://raw.githubusercontent.com/Rcmade/ray/main/install.sh | bash
+```
+*Also accessible via your branded console:*
+```bash
+curl -fsSL https://secrets.bitovian.com/install.sh | bash
+```
 
-3. **Restart your computer**: If the autocompletion feature is still not working, try restarting your computer. This ensures that all shell instances are refreshed with the updated configurations.
+### Windows (PowerShell)
+```powershell
+iwr https://raw.githubusercontent.com/Rcmade/ray/main/install.ps1 -useb | iex
+```
 
-By following these steps, you should be able to resolve most issues with autocompletion not working as expected. If problems persist, please consult the `ray` documentation or reach out for support.
+### Minimal Docker & Alpine Linux (musl)
+Ray CLI natively supports both `glibc` (Debian/Ubuntu/RHEL) and `musl` (Alpine Linux):
+```dockerfile
+RUN apk add --no-cache curl tar bash && \
+    curl -fsSL https://raw.githubusercontent.com/Rcmade/ray/main/install.sh | bash
+ENV PATH="/root/.ray/bin:$PATH"
+```
 
-## Available Commands
+### Node.js / NPM (Cross-Platform Fast Path)
+For developers with Node.js 18+ installed:
+```bash
+# Global installation
+npm install -g @rcmade/ray
 
-`@rcmade/ray` provides a suite of commands designed to manage your credentials securely and efficiently directly from the terminal. Below is a list of available commands along with their descriptions:
+# Or instant zero-install execution
+npx @rcmade/ray login
+```
 
-### `add <snippetName> <snippetValue>`
+---
 
-- **Description**: Adds a new snippet with the specified name and value. This command securely stores the snippet for later use.
-- **Usage**:
+## ⚡ Quickstart
 
-    ```sh
-    ray add githubToken myGithubSnippet
-    ```
+Get up and running in under 60 seconds:
 
-    Or
+```bash
+# 1. Authenticate with Ray Secrets Console
+ray login
 
-    ```sh
-    ray add myCodeSnippet -c // -c will open the default editor if not specified then use "export EDITOR=vim"
+# 2. Link your current directory to a Ray Secrets project
+ray init
 
-    ```
+# 3. Pull development secrets into your local workspace
+ray pull
 
-### `ray <snippetName>`
+# 4. Inject secrets directly into your development process (Zero disk writes!)
+ray run -- npm run dev
+```
 
-- **Description**: Retrieves and displays the value of the specified snippet. Use this command to quickly access the value of a securely stored snippet by its name.
-- **Usage**:
+---
 
-    ```sh
-    ray github
-    ```
+## 🛠️ Command Reference
 
-### `list`
+| Command | Description | Example Usage |
+| :--- | :--- | :--- |
+| `ray login` | Authenticate with Ray Secrets via Personal Access Token | `ray login` |
+| `ray whoami` | Inspect current session and authenticated identity | `ray whoami` |
+| `ray init` | Link current directory to a workspace project | `ray init` |
+| `ray projects` | List and inspect projects in your workspace | `ray projects` |
+| `ray pull` | Pull decrypted secrets to file or stream to stdout | `ray pull -e staging --stdout` |
+| `ray push` | Push local `.env` variables to server with AST merge | `ray push -f .env.local` |
+| `ray run` | Inject secrets into process environment in-memory | `ray run -- node server.js` |
+| `ray list` | Display masked key-value summary for an environment | `ray list -e production` |
+| `ray set` | Set or update individual environment secrets | `ray set DATABASE_URL=postgres://...` |
+| `ray get` | Fetch and extract a single secret value | `ray get API_KEY` |
+| `ray delete` | Safely remove one or more secrets | `ray delete OLD_KEY -y` |
+| `ray diff` | Detect configuration drift across environments | `ray diff dev staging` |
+| `ray doctor` | Run comprehensive security, permissions & drift audit | `ray doctor --strict` |
+| `ray completion`| Automated shell autocompletion installer (bash/zsh) | `ray completion` |
+| `ray logout` | Securely purge cached credentials and tokens from disk | `ray logout` |
 
-- **Description**: Lists all stored snippets, displaying their names. This command helps you quickly see what snippets you have stored.
-- **Usage**:
+---
 
-    ```sh
-    ray list
-    ```
+## 🛡️ Security Model
 
-### `remove <snippetName>`
+Ray CLI is engineered with security and developer hygiene as first-class constraints:
 
-- **Description**: Removes a snippet by its name. This command is useful for deleting snippets that are no longer needed.
-- **Usage**:
+* **Zero-Disk Process Injection**: `ray run -- <command>` injects environment variables directly into the child process memory tree using POSIX `execve` semantics. Zero plaintext credentials touch disk or logs.
+* **Encrypted Cache at Rest**: Local cache files are encrypted with **AES-256-GCM** using machine-unique cryptographic keys and saved with strict POSIX `0o600` permissions (owner read/write only).
+* **Path Traversal Protection**: All scope references and mount paths are strictly validated against directory traversal attacks (`../`).
+* **Zero Binary Telemetry**: Compiled standalone binaries contain zero proprietary analytics or telemetry trackers.
 
-    ```sh
-    ray remove github
-    ```
+---
 
-### `setup`
+## 💻 Platform Support
 
-- **Description**: Runs setup tasks, including initializing autocompletion for the `ray` commands. This is a one-time setup command that prepares your environment for optimal use of `ray`.
-- **Usage**:
+| Operating System | Architecture | Binary Package | Runtime |
+| :--- | :--- | :--- | :--- |
+| **Linux (glibc)** | x86_64 | `ray-linux-x64.tar.gz` | Native standalone executable |
+| **Linux (glibc)** | ARM64 / AArch64 | `ray-linux-arm64.tar.gz` | Native standalone executable |
+| **Alpine Linux (musl)** | x86_64 | `ray-linux-x64-musl.tar.gz` | Native standalone executable |
+| **Alpine Linux (musl)** | ARM64 / AArch64 | `ray-linux-arm64-musl.tar.gz` | Native standalone executable |
+| **macOS** | Apple Silicon (M1–M4) | `ray-darwin-arm64.tar.gz` | Native Mach-O standalone |
+| **macOS** | Intel x64 | `ray-darwin-x64.tar.gz` | Native Mach-O standalone |
+| **Windows** | x86_64 | `ray-windows-x64.zip` | Native PE executable |
+| **Any OS with Node.js** | Any | `@rcmade/ray` (NPM) | Node.js 18+ LTS |
 
-    ```sh
-    ray setup
-    ```
+---
 
-### `list-commands`
+## 📄 License
 
-- **Description**: Lists all available commands in the `ray` CLI tool. This command provides a quick reference to all the functionalities provided by `ray`.
-- **Usage**:
-
-    ```sh
-    ray list-commands
-    ```
+Ray CLI is distributed under the [MIT License](LICENSE).
