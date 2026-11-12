@@ -1,22 +1,33 @@
-MIT License
+Proprietary Software License Agreement
 
-Copyright (c) 2026 Rcmade (Rahul Chourasiya)
+Copyright (c) 2026 Rcmade. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+IMPORTANT: PLEASE READ CAREFULLY BEFORE DOWNLOADING, INSTALLING, OR USING THIS SOFTWARE.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+By downloading, installing, copying, or using the Ray Secrets CLI, including its associated binary executables, installers, scripts, and documentation (collectively, the "Software"), you agree to be bound by the terms and conditions of this Agreement. If you do not agree, do not download, install, or use the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+1. GRANT OF LICENSE
+Subject to the terms of this Agreement, Rcmade grants you a personal, revocable, non-exclusive, non-transferable, non-sublicensable limited license to download, install, and execute the official binary executables and installation scripts of the Software solely for your internal development and operational purposes to interact with Ray Secrets services.
 
+2. RESTRICTIONS
+You may not, and you may not allow any third party to:
+a. Decompile, reverse engineer, disassemble, decrypt, unpack, or otherwise attempt to derive or reconstruct the source code of the Software or any part thereof;
+b. Modify, translate, adapt, or create derivative works based upon the Software;
+c. Sell, resell, rent, lease, lend, sublicense, distribute, redistribute, host, or commercially exploit the Software as a standalone product or service;
+d. Remove, alter, obscure, or obliterate any proprietary notice, copyright notice, trademark, or disclaimer on or in the Software;
+e. Circumvent, disable, bypass, or interfere with any security-related features, authentication controls, usage restrictions, or access limits in the Software.
+
+3. INTELLECTUAL PROPERTY & OWNERSHIP
+The Software is licensed, not sold. All rights, title, interest, and intellectual property rights in and to the Software—including but not limited to copyrights, patents, trade secrets, trademarks, algorithms, and designs—are and shall remain the exclusive property of Rcmade. No rights or licenses are granted except for the express, limited rights granted in Section 1.
+
+4. DISCLAIMER OF WARRANTIES
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, STATUTORY OR OTHERWISE, INCLUDING WITHOUT LIMITATION ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. RCMADE DOES NOT WARRANT THAT THE SOFTWARE WILL BE UNINTERRUPTED, ERROR-FREE, OR FREE OF HARMFUL COMPONENTS.
+
+5. LIMITATION OF LIABILITY
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL RCMADE, ITS AFFILIATES, OFFICERS, DIRECTORS, OR EMPLOYEES BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES ARISING OUT OF OR IN CONNECTION WITH THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+6. TERMINATION
+This Agreement remains in effect until terminated. Your rights under this license will terminate immediately and automatically without notice from Rcmade if you fail to comply with any provision of this Agreement. Upon termination, you must immediately cease all use of the Software and permanently delete all copies in your possession or control.
+
+7. GOVERNING LAW
+This Agreement shall be governed by and construed in accordance with the laws applicable to Rcmade, without giving effect to any principles of conflicts of law.

@@ -1,19 +1,23 @@
 #!/bin/sh
 # ═══════════════════════════════════════════════════════════════════════════════
 # Ray CLI Universal Installer
-# Compatible with macOS, Linux, WSL, Docker, and CI environments
+# Compatible with macOS, Linux, Alpine (musl), WSL, Docker, and CI environments
 # ═══════════════════════════════════════════════════════════════════════════════
 set -e
 
+# Safe HOME fallback for bare containers
+HOME="${HOME:-/root}"
+
 # Visual colors (disabled if not interactive TTY)
 if [ -t 1 ]; then
-  BOLD="\033[1m"
-  GREEN="\033[32m"
-  CYAN="\033[36m"
-  YELLOW="\033[33m"
-  RED="\033[31m"
-  DIM="\033[2m"
-  RESET="\033[0m"
+  ESC="$(printf '\033')"
+  BOLD="${ESC}[1m"
+  GREEN="${ESC}[32m"
+  CYAN="${ESC}[36m"
+  YELLOW="${ESC}[33m"
+  RED="${ESC}[31m"
+  DIM="${ESC}[2m"
+  RESET="${ESC}[0m"
 else
   BOLD=""
   GREEN=""
@@ -31,7 +35,7 @@ echo "    ██████╔╝███████║ ╚████╔╝
 echo "    ██╔══██╗██╔══██║  ╚██╔╝  "
 echo "    ██║  ██║██║  ██║   ██║   "
 echo "    ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   "
-echo "   Ray Connect Securely"
+echo "   Git for your .env"
 echo "${RESET}"
 
 # 1. Detect Operating System
@@ -46,7 +50,7 @@ case "$OS" in
   *)
     echo "${RED}Error: Unsupported operating system: ${OS}${RESET}" >&2
     echo "For Windows, run the PowerShell installer:"
-    echo "  ${CYAN}iwr https://secrets.bitovian.com/install.ps1 -useb | iex${RESET}"
+    echo "  ${CYAN}iwr https://secrets.rcmade.io/install.ps1 -useb | iex${RESET}"
     echo "Or install via NPM:"
     echo "  ${CYAN}npm install -g @rcmade/ray${RESET}"
     exit 1
@@ -101,7 +105,7 @@ else
   INSTALL_DIR="${HOME}/.ray/bin"
 fi
 
-echo "${DIM}Detected environment:${RESET} ${BOLD}${PLATFORM}-${ARCH}${RESET}"
+echo "${DIM}Detected environment:${RESET} ${BOLD}${PLATFORM}-${ARCH}${LIBC_SUFFIX}${RESET}"
 echo "${DIM}Target binary:${RESET}        ${BOLD}${TARGET_NAME}${RESET}"
 echo "${DIM}Install directory:${RESET}    ${BOLD}${INSTALL_DIR}${RESET}"
 echo ""
@@ -116,29 +120,42 @@ trap cleanup EXIT INT TERM
 ARCHIVE_FILE="${TMP_DIR}/${ARCHIVE_NAME}"
 
 # 6. Download Archive
-printf "%b" "${CYAN}→ Downloading Ray CLI...${RESET} "
+echo "${CYAN}→ Downloading Ray CLI (${ARCHIVE_NAME})...${RESET}"
 if command -v curl >/dev/null 2>&1; then
-  curl -fsSL "$DOWNLOAD_URL" -o "$ARCHIVE_FILE" || {
-    echo "${RED}FAILED${RESET}"
-    echo "${RED}Could not download archive from:${RESET} ${DOWNLOAD_URL}" >&2
-    echo "Tip: Verify network connection or install via NPM: ${CYAN}npm install -g @rcmade/ray${RESET}" >&2
-    exit 1
-  }
+  if [ -t 1 ] && [ -t 2 ]; then
+    curl -# -fL "$DOWNLOAD_URL" -o "$ARCHIVE_FILE" || {
+      echo "${RED}Error: Failed to download archive from: ${DOWNLOAD_URL}${RESET}" >&2
+      echo "Tip: Verify network connection or install via NPM: ${CYAN}npm install -g @rcmade/ray${RESET}" >&2
+      exit 1
+    }
+  else
+    curl -fsSL "$DOWNLOAD_URL" -o "$ARCHIVE_FILE" || {
+      echo "${RED}Error: Failed to download archive from: ${DOWNLOAD_URL}${RESET}" >&2
+      echo "Tip: Verify network connection or install via NPM: ${CYAN}npm install -g @rcmade/ray${RESET}" >&2
+      exit 1
+    }
+  fi
 elif command -v wget >/dev/null 2>&1; then
-  wget -qO "$ARCHIVE_FILE" "$DOWNLOAD_URL" || {
-    echo "${RED}FAILED${RESET}"
-    echo "${RED}Could not download archive from:${RESET} ${DOWNLOAD_URL}" >&2
-    exit 1
-  }
+  if [ -t 1 ] && [ -t 2 ]; then
+    wget --show-progress -qO "$ARCHIVE_FILE" "$DOWNLOAD_URL" || {
+      echo "${RED}Error: Failed to download archive from: ${DOWNLOAD_URL}${RESET}" >&2
+      exit 1
+    }
+  else
+    wget -qO "$ARCHIVE_FILE" "$DOWNLOAD_URL" || {
+      echo "${RED}Error: Failed to download archive from: ${DOWNLOAD_URL}${RESET}" >&2
+      exit 1
+    }
+  fi
 else
-  echo "${RED}FAILED${RESET}"
   echo "${RED}Error: Neither curl nor wget was found in PATH.${RESET}" >&2
+  echo "Tip: Install via NPM: npm install -g @rcmade/ray" >&2
   exit 1
 fi
-echo "${GREEN}OK${RESET}"
+echo "${GREEN}✓ Download complete${RESET}"
 
 # 7. Extract Binary
-printf "%b" "${CYAN}→ Extracting binary...${RESET} "
+echo "${CYAN}→ Extracting binary...${RESET}"
 mkdir -p "$TMP_DIR/extracted"
 tar -xzf "$ARCHIVE_FILE" -C "$TMP_DIR/extracted"
 
@@ -153,23 +170,22 @@ else
 fi
 
 if [ -z "$EXTRACTED_BIN" ] || [ ! -f "$EXTRACTED_BIN" ]; then
-  echo "${RED}FAILED${RESET}"
   echo "${RED}Error: Failed to find executable inside downloaded archive.${RESET}" >&2
   exit 1
 fi
-echo "${GREEN}OK${RESET}"
+echo "${GREEN}✓ Binary extracted${RESET}"
 
 # 8. Install to Target Directory
-printf "%b" "${CYAN}→ Installing to ${INSTALL_DIR}...${RESET} "
+echo "${CYAN}→ Installing to ${INSTALL_DIR}...${RESET}"
 mkdir -p "$INSTALL_DIR"
-cp "$EXTRACTED_BIN" "${INSTALL_DIR}/ray"
+cp -f "$EXTRACTED_BIN" "${INSTALL_DIR}/ray"
 chmod 755 "${INSTALL_DIR}/ray"
 
 # Clear macOS Gatekeeper quarantine attribute if present
 if [ "$PLATFORM" = "darwin" ] && command -v xattr >/dev/null 2>&1; then
   xattr -d com.apple.quarantine "${INSTALL_DIR}/ray" 2>/dev/null || true
 fi
-echo "${GREEN}OK${RESET}"
+echo "${GREEN}✓ Installed to ${INSTALL_DIR}/ray${RESET}"
 
 # 9. Configure Shell PATH if needed
 PATH_CONFIGURED=0
@@ -185,6 +201,7 @@ if [ "$PATH_CONFIGURED" -eq 0 ] && [ "$INSTALL_DIR" = "${HOME}/.ray/bin" ]; then
   case "$USER_SHELL" in
     zsh)
       PROFILE_FILE="${HOME}/.zshrc"
+      PATH_EXPORT='export PATH="$HOME/.ray/bin:$PATH"'
       ;;
     bash)
       if [ "$PLATFORM" = "darwin" ] && [ -f "${HOME}/.bash_profile" ]; then
@@ -192,17 +209,28 @@ if [ "$PATH_CONFIGURED" -eq 0 ] && [ "$INSTALL_DIR" = "${HOME}/.ray/bin" ]; then
       else
         PROFILE_FILE="${HOME}/.bashrc"
       fi
+      PATH_EXPORT='export PATH="$HOME/.ray/bin:$PATH"'
+      ;;
+    fish)
+      PROFILE_FILE="${HOME}/.config/fish/config.fish"
+      PATH_EXPORT='set -gx PATH "$HOME/.ray/bin" $PATH'
       ;;
     *)
       PROFILE_FILE="${HOME}/.profile"
+      PATH_EXPORT='export PATH="$HOME/.ray/bin:$PATH"'
       ;;
   esac
 
-  PATH_EXPORT='export PATH="$HOME/.ray/bin:$PATH"'
-  if [ -n "$PROFILE_FILE" ] && [ -f "$PROFILE_FILE" ]; then
-    if ! grep -q '\.ray/bin' "$PROFILE_FILE" 2>/dev/null; then
-      printf "\n# Ray CLI\n%s\n" "$PATH_EXPORT" >> "$PROFILE_FILE"
-      echo "${GREEN}→ Automatically added ~/.ray/bin to your PATH in ${PROFILE_FILE}${RESET}"
+  if [ -n "$PROFILE_FILE" ]; then
+    mkdir -p "$(dirname "$PROFILE_FILE")"
+    if [ -f "$PROFILE_FILE" ]; then
+      if ! grep -q '\.ray/bin' "$PROFILE_FILE" 2>/dev/null; then
+        printf "\n# Ray CLI\n%s\n" "$PATH_EXPORT" >> "$PROFILE_FILE"
+        echo "${GREEN}→ Automatically added ~/.ray/bin to your PATH in ${PROFILE_FILE}${RESET}"
+      fi
+    else
+      printf "# Ray CLI\n%s\n" "$PATH_EXPORT" > "$PROFILE_FILE"
+      echo "${GREEN}→ Automatically created ${PROFILE_FILE} and added ~/.ray/bin to PATH${RESET}"
     fi
   else
     echo "${YELLOW}Notice: Please manually add ${INSTALL_DIR} to your PATH:${RESET}"
@@ -216,6 +244,13 @@ if [ -x "$INSTALLED_RAY" ]; then
   INSTALLED_VERSION="$("$INSTALLED_RAY" --version 2>/dev/null || echo "installed")"
 else
   INSTALLED_VERSION="installed"
+fi
+
+if [ "$INSTALLED_VERSION" = "installed" ] && [ "$LIBC_SUFFIX" = "-musl" ]; then
+  if ! [ -f /usr/lib/libstdc++.so.6 ] && ! [ -f /lib/libstdc++.so.6 ]; then
+    echo "${YELLOW}Notice: Alpine Linux requires libstdc++ and libgcc.${RESET}"
+    echo "  Install with: ${CYAN}apk add --no-cache libstdc++ libgcc${RESET}"
+  fi
 fi
 
 echo ""
