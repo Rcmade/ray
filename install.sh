@@ -89,11 +89,16 @@ ARCHIVE_NAME="${TARGET_NAME}.tar.gz"
 VERSION="${RAY_VERSION:-latest}"
 REPO_OWNER="Rcmade"
 REPO_NAME="ray"
+RELEASE_BASE="${RAY_RELEASE_URL%/}"
 
 if [ "$VERSION" = "latest" ]; then
-  DOWNLOAD_URL="${RAY_RELEASE_URL:-https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/latest/download}/${ARCHIVE_NAME}"
+  DOWNLOAD_URL="${RELEASE_BASE:-https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/latest/download}/${ARCHIVE_NAME}"
 else
-  DOWNLOAD_URL="${RAY_RELEASE_URL:-https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${VERSION}}/${ARCHIVE_NAME}"
+  case "$VERSION" in
+    v*) TAG_VERSION="$VERSION" ;;
+    *)  TAG_VERSION="v$VERSION" ;;
+  esac
+  DOWNLOAD_URL="${RELEASE_BASE:-https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${TAG_VERSION}}/${ARCHIVE_NAME}"
 fi
 
 # 4. Determine Install Directory
@@ -119,37 +124,35 @@ trap cleanup EXIT INT TERM
 
 ARCHIVE_FILE="${TMP_DIR}/${ARCHIVE_NAME}"
 
+report_download_failure() {
+  echo "" >&2
+  echo "${RED}Error: Failed to download release archive from: ${DOWNLOAD_URL}${RESET}" >&2
+  echo "" >&2
+  echo "${BOLD}Alternative installation options:${RESET}" >&2
+  echo "  - Package manager:            ${CYAN}npm install -g @rcmade/ray${RESET}" >&2
+  echo "  - Direct download:            ${CYAN}https://secrets.rcmade.io/download${RESET}" >&2
+  echo "  - Troubleshooting:            ${CYAN}https://secrets.rcmade.io/download#troubleshooting${RESET}" >&2
+  echo "" >&2
+  exit 1
+}
+
 # 6. Download Archive
 echo "${CYAN}→ Downloading Ray CLI (${ARCHIVE_NAME})...${RESET}"
 if command -v curl >/dev/null 2>&1; then
   if [ -t 1 ] && [ -t 2 ]; then
-    curl -# -fL "$DOWNLOAD_URL" -o "$ARCHIVE_FILE" || {
-      echo "${RED}Error: Failed to download archive from: ${DOWNLOAD_URL}${RESET}" >&2
-      echo "Tip: Verify network connection or install via NPM: ${CYAN}npm install -g @rcmade/ray${RESET}" >&2
-      exit 1
-    }
+    curl -# -fL "$DOWNLOAD_URL" -o "$ARCHIVE_FILE" || report_download_failure
   else
-    curl -fsSL "$DOWNLOAD_URL" -o "$ARCHIVE_FILE" || {
-      echo "${RED}Error: Failed to download archive from: ${DOWNLOAD_URL}${RESET}" >&2
-      echo "Tip: Verify network connection or install via NPM: ${CYAN}npm install -g @rcmade/ray${RESET}" >&2
-      exit 1
-    }
+    curl -fsSL "$DOWNLOAD_URL" -o "$ARCHIVE_FILE" || report_download_failure
   fi
 elif command -v wget >/dev/null 2>&1; then
   if [ -t 1 ] && [ -t 2 ]; then
-    wget --show-progress -qO "$ARCHIVE_FILE" "$DOWNLOAD_URL" || {
-      echo "${RED}Error: Failed to download archive from: ${DOWNLOAD_URL}${RESET}" >&2
-      exit 1
-    }
+    wget --show-progress -qO "$ARCHIVE_FILE" "$DOWNLOAD_URL" || report_download_failure
   else
-    wget -qO "$ARCHIVE_FILE" "$DOWNLOAD_URL" || {
-      echo "${RED}Error: Failed to download archive from: ${DOWNLOAD_URL}${RESET}" >&2
-      exit 1
-    }
+    wget -qO "$ARCHIVE_FILE" "$DOWNLOAD_URL" || report_download_failure
   fi
 else
   echo "${RED}Error: Neither curl nor wget was found in PATH.${RESET}" >&2
-  echo "Tip: Install via NPM: npm install -g @rcmade/ray" >&2
+  echo "Alternative: Install globally via NPM: npm install -g @rcmade/ray" >&2
   exit 1
 fi
 echo "${GREEN}✓ Download complete${RESET}"

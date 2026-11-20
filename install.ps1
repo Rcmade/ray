@@ -108,11 +108,14 @@ function Show-GenericFailureHelp {
 function Show-DownloadFailureHelp {
     param([string]$Url)
     Write-Host ''
-    Write-RayWarn 'Download tips:'
-    Write-Host '  - Check internet access / VPN' -ForegroundColor Gray
-    Write-Host '  - If GitHub is blocked, ask IT to allow github.com or set RAY_RELEASE_URL to your mirror' -ForegroundColor Gray
-    Write-Host "  - Failed URL: $Url" -ForegroundColor Gray
-    Write-Host "  - Docs: $DocsUrl" -ForegroundColor Gray
+    Write-RayFail "Unable to download release archive from remote server."
+    if ($Url) { Write-RayHint "Failed URL: $Url" }
+    Write-Host ''
+    Write-Host 'Alternative installation options:' -ForegroundColor White
+    Write-Host '  - Package manager: npm install -g @rcmade/ray' -ForegroundColor Cyan
+    Write-Host "  - Direct download: $DocsUrl/download" -ForegroundColor Cyan
+    Write-Host "  - Troubleshooting: $DocsUrl/download#troubleshooting" -ForegroundColor Cyan
+    Write-Host ''
 }
 
 function Expand-RayArchive {
@@ -200,6 +203,7 @@ try {
     $repoOwner = 'Rcmade'
     $repoName = 'ray'
     $version = if ($env:RAY_VERSION) { $env:RAY_VERSION } else { 'latest' }
+    $tagVersion = if ($version -ne 'latest' -and -not $version.StartsWith('v')) { "v$version" } else { $version }
 
     # Current public release artifact is the x64 zip. On Windows 11 ARM64 this runs via x64 emulation.
     $archiveName = 'ray-windows-x64.zip'
@@ -208,7 +212,7 @@ try {
     } elseif ($version -eq 'latest') {
         "https://github.com/$repoOwner/$repoName/releases/latest/download"
     } else {
-        "https://github.com/$repoOwner/$repoName/releases/download/$version"
+        "https://github.com/$repoOwner/$repoName/releases/download/$tagVersion"
     }
     $downloadUrl = "$releaseBaseUrl/$archiveName"
 
